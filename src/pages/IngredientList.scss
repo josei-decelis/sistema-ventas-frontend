@@ -1,6 +1,8 @@
 @import '../styles/variables';
 
 .ingredient-list {
+  padding: 2rem;
+
   &__header {
     display: flex;
     justify-content: space-between;
@@ -17,4 +19,25 @@
 .stock-low {
   color: $color-danger;
   font-weight: 600;
+}
+
+.usage-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  display: inline-block;
+  border: 1px solid;
+
+  &--active {
+    background-color: #e8f4f8;
+    color: #0c5460;
+    border-color: #bee5eb;
+  }
+
+  &--inactive {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-color: #dee2e6;
+  }
 }

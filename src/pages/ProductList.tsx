@@ -14,6 +14,7 @@ export const ProductList: React.FC = () => {
   const { products, loading, error, deleteProduct } = useProducts();
   const [sortField, setSortField] = useState<SortField>('id');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('grid');
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -73,7 +74,7 @@ export const ProductList: React.FC = () => {
           Precio {sortField === 'precioBase' && (sortOrder === 'asc' ? '↑' : '↓')}
         </span>
       ),
-      accessor: (product: Product) => `$${product.precioBase.toFixed(2)}`,
+      accessor: (product: Product) => `$${product.precioBase.toLocaleString('es-CL')}`,
     },
     {
       header: 'Estado',
@@ -110,23 +111,92 @@ export const ProductList: React.FC = () => {
 
   return (
     <div className="product-list">
-      <Card>
-        <div className="product-list__header">
-          <h1>Productos</h1>
+      <div className="product-list__header">
+        <h1>Productos</h1>
+        <div className="header-actions">
+          <div className="view-toggle">
+            <button 
+              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              title="Vista Tarjetas"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+            <button 
+              className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              title="Vista Tabla"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+          </div>
           <Link to="/productos/crear">
             <Button>+ Nuevo Producto</Button>
           </Link>
         </div>
+      </div>
 
-        {error && <div className="alert alert--danger">{error}</div>}
+      {error && <div className="alert alert--danger">{error}</div>}
 
-        <Table
-          data={sortedProducts}
-          columns={columns}
-          loading={loading}
-          emptyMessage="No hay productos registrados"
-        />
-      </Card>
+      {loading ? (
+        <div className="loading">Cargando productos...</div>
+      ) : (
+        <>
+          {viewMode === 'grid' ? (
+            <div className="products-grid">
+              {sortedProducts.length === 0 ? (
+                <Card><p className="empty-message">No hay productos registrados</p></Card>
+              ) : (
+                sortedProducts.map((product) => (
+                  <Card key={product.id} className="product-card">
+                    <div className="product-card__header">
+                      <div className="product-icon">🍕</div>
+                      <span className={`badge badge--${product.activo ? 'success' : 'danger'}`}>
+                        {product.activo ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </div>
+                    <h3 className="product-card__name">{product.nombre}</h3>
+                    <div className="product-card__price">${product.precioBase.toLocaleString('es-CL')}</div>
+                    {product.ingredientes && product.ingredientes.length > 0 && (
+                      <div className="product-card__ingredients">
+                        <span className="ingredients-badge">
+                          🧪 {product.ingredientes.length} ingrediente{product.ingredientes.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    )}
+                    <div className="product-card__actions">
+                      <Link to={`/productos/${product.id}/editar`}>
+                        <Button size="small" variant="secondary">✏️ Editar</Button>
+                      </Link>
+                      <Button size="small" variant="danger" onClick={() => handleDelete(product.id)}>
+                        🗑️ Eliminar
+                      </Button>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          ) : (
+            <Card>
+              <Table
+                data={sortedProducts}
+                columns={columns}
+                loading={loading}
+                emptyMessage="No hay productos registrados"
+              />
+            </Card>
+          )}
+        </>
+      )}
     </div>
   );
 };

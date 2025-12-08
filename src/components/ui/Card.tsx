@@ -3,7 +3,7 @@ import './Card.scss';
 
 interface CardProps {
   children: React.ReactNode;
-  title?: string;
+  title?: string | React.ReactNode;
   className?: string;
 }
 

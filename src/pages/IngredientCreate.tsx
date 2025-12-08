@@ -14,15 +14,13 @@ export const IngredientCreate: React.FC = () => {
   const [formData, setFormData] = useState<CreateIngredientInput>({
     nombre: '',
     costoUnitario: 0,
-    stockActual: 0,
-    unidadMedida: 'gramos',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: ['costoUnitario', 'stockActual'].includes(name) ? (parseFloat(value) || 0) : value,
+      [name]: ['costoUnitario'].includes(name) ? (parseFloat(value) || 0) : value,
     }));
   };
 
@@ -55,34 +53,6 @@ export const IngredientCreate: React.FC = () => {
             onChange={handleChange}
             required
           />
-
-          <Input
-            label="Stock Actual"
-            name="stockActual"
-            type="number"
-            min="0"
-            value={formData.stockActual || 0}
-            onChange={handleChange}
-          />
-
-          <div className="input-group">
-            <label htmlFor="unidadMedida" className="input-group__label">
-              Unidad de Medida
-            </label>
-            <select
-              name="unidadMedida"
-              id="unidadMedida"
-              value={formData.unidadMedida}
-              onChange={handleChange}
-              className="input-group__input"
-            >
-              <option value="gramos">Gramos</option>
-              <option value="kilogramos">Kilogramos</option>
-              <option value="litros">Litros</option>
-              <option value="mililitros">Mililitros</option>
-              <option value="unidades">Unidades</option>
-            </select>
-          </div>
 
           <div className="form-actions">
             <Button type="button" variant="secondary" onClick={() => navigate('/ingredientes')}>

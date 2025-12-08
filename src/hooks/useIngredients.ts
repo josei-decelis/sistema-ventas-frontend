@@ -100,34 +100,6 @@ export const useIngredients = () => {
     }
   };
 
-  const updateStock = async (id: number, cantidad: number): Promise<Ingredient | null> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const ingredient = await ingredientApi.updateStock(id, { cantidad });
-      await fetchIngredients();
-      return ingredient;
-    } catch (err) {
-      setError(err instanceof HttpError ? err.message : 'Error al actualizar stock');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getLowStock = async (limite?: number): Promise<Ingredient[]> => {
-    setLoading(true);
-    setError(null);
-    try {
-      return await ingredientApi.getLowStock(limite);
-    } catch (err) {
-      setError(err instanceof HttpError ? err.message : 'Error al obtener stock bajo');
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchIngredients();
   }, [fetchIngredients]);
@@ -142,7 +114,5 @@ export const useIngredients = () => {
     createIngredient,
     updateIngredient,
     deleteIngredient,
-    updateStock,
-    getLowStock,
   };
 };

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { ProductList } from './pages/ProductList';
 import { ProductCreate } from './pages/ProductCreate';
+import { ProductEdit } from './pages/ProductEdit';
 import { IngredientList } from './pages/IngredientList';
 import { IngredientCreate } from './pages/IngredientCreate';
 import { ClienteList } from './pages/ClienteList';
@@ -56,6 +57,7 @@ function App() {
               <Route path="/clientes/:id" element={<ClienteDetail />} />
               <Route path="/productos" element={<ProductList />} />
               <Route path="/productos/crear" element={<ProductCreate />} />
+              <Route path="/productos/:id/editar" element={<ProductEdit />} />
               <Route path="/ingredientes" element={<IngredientList />} />
               <Route path="/ingredientes/crear" element={<IngredientCreate />} />
               <Route path="/ventas" element={<VentaList />} />

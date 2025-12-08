@@ -27,8 +27,12 @@ export interface DashboardStats {
   resumen: {
     ventasMes: number;
     cantidadVentasMes: number;
+    ventasMesAnterior: number;
+    diferenciaVsMesAnterior: number;
     ventasHoy: number;
     cantidadVentasHoy: number;
+    ventasHoyHaceUnMes: number;
+    diferenciaVsHaceUnMes: number;
     totalClientes: number;
     totalVentas: number;
     cantidadVentas: number;

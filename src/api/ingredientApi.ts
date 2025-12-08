@@ -3,7 +3,6 @@ import {
   Ingredient,
   CreateIngredientInput,
   UpdateIngredientInput,
-  UpdateStockInput,
 } from '../types/ingredient';
 import { PaginatedResponse } from '../types/common';
 
@@ -43,22 +42,5 @@ export const ingredientApi = {
 
   delete: async (id: number): Promise<void> => {
     await httpClient.delete(`/ingredientes/${id}`);
-  },
-
-  updateStock: async (id: number, data: UpdateStockInput): Promise<Ingredient> => {
-    const response = await httpClient.patch<{ ingrediente: Ingredient }>(
-      `/ingredientes/${id}/stock`,
-      data
-    );
-    return response.data!.ingrediente;
-  },
-
-  getLowStock: async (limite?: number): Promise<Ingredient[]> => {
-    const params = limite ? { limite } : undefined;
-    const response = await httpClient.get<{ ingredientes: Ingredient[] }>(
-      '/ingredientes/bajo-stock',
-      params
-    );
-    return response.data?.ingredientes || [];
   },
 };

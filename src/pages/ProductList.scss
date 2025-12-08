@@ -1,6 +1,8 @@
 @import '../styles/variables';
 
 .product-list {
+  padding: 2rem;
+
   &__header {
     display: flex;
     justify-content: space-between;
@@ -10,6 +12,124 @@
     h1 {
       margin: 0;
       color: $color-text;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 0.25rem;
+      background: #f8f9fa;
+      padding: 0.25rem;
+      border-radius: $border-radius;
+
+      .view-btn {
+        padding: 0.5rem 0.75rem;
+        border: none;
+        background: transparent;
+        border-radius: calc(#{$border-radius} - 2px);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: $color-text-secondary;
+
+        &:hover {
+          background: white;
+          color: $color-primary;
+        }
+
+        &.active {
+          background: white;
+          color: $color-primary;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        svg {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 3rem;
+    color: $color-text-secondary;
+  }
+
+  .empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: $color-text-secondary;
+  }
+}
+
+// Vista Grid
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+
+  .product-card {
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+
+      .product-icon {
+        font-size: 2.5rem;
+      }
+    }
+
+    &__name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $color-text;
+      margin: 0 0 0.75rem 0;
+    }
+
+    &__price {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $color-primary;
+      margin-bottom: 1rem;
+    }
+
+    &__ingredients {
+      margin-bottom: 1rem;
+
+      .ingredients-badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+    }
+
+    &__actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid $color-border;
+
+      button, a {
+        flex: 1;
+      }
     }
   }
 }

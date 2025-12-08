@@ -15,6 +15,10 @@ export const VentaList: React.FC = () => {
   const { ventas, loading, error, pagination, fetchVentas, anularVenta } = useVentas();
   const [sortField, setSortField] = useState<SortField>('id');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedVenta, setSelectedVenta] = useState<Venta | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -28,11 +32,34 @@ export const VentaList: React.FC = () => {
   useEffect(() => {
     fetchVentas();
   }, []);
+  
   const [filters, setFilters] = useState({
     estado: '',
     fechaInicio: '',
     fechaFin: '',
   });
+
+  // Calcular estadísticas
+  const stats = useMemo(() => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    const ventasHoy = ventas.filter(v => {
+      const fecha = new Date(v.createdAt);
+      fecha.setHours(0, 0, 0, 0);
+      return fecha.getTime() === hoy.getTime() && v.estado !== 'anulada';
+    });
+    
+    const ventasPendientes = ventas.filter(v => v.estado === 'pendiente');
+    const ventasCompletadas = ventas.filter(v => v.estado === 'completada');
+    
+    return {
+      totalHoy: ventasHoy.reduce((sum, v) => sum + v.total, 0),
+      cantidadHoy: ventasHoy.length,
+      pendientes: ventasPendientes.length,
+      completadas: ventasCompletadas.length,
+    };
+  }, [ventas]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -60,6 +87,16 @@ export const VentaList: React.FC = () => {
     }
   };
 
+  const handleVerDetalle = (venta: Venta) => {
+    setSelectedVenta(venta);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedVenta(null);
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -78,8 +115,20 @@ export const VentaList: React.FC = () => {
     });
   };
 
+  // Filtrar por búsqueda
+  const filteredVentas = useMemo(() => {
+    if (!searchQuery.trim()) return ventas;
+    
+    const query = searchQuery.toLowerCase();
+    return ventas.filter(venta => 
+      venta.cliente?.nombre.toLowerCase().includes(query) ||
+      venta.cliente?.telefono.includes(query) ||
+      venta.id.toString().includes(query)
+    );
+  }, [ventas, searchQuery]);
+
   const sortedVentas = useMemo(() => {
-    const sorted = [...ventas];
+    const sorted = [...filteredVentas];
     sorted.sort((a, b) => {
       let aVal: any;
       let bVal: any;
@@ -118,7 +167,7 @@ export const VentaList: React.FC = () => {
       return 0;
     });
     return sorted;
-  }, [ventas, sortField, sortOrder]);
+  }, [filteredVentas, sortField, sortOrder]);
 
   const columns = [
     {
@@ -147,11 +196,16 @@ export const VentaList: React.FC = () => {
     },
     {
       header: 'Estado',
-      accessor: (venta: Venta) => (
-        <span className={`status status-${venta.estado}`}>
-          {venta.estado.charAt(0).toUpperCase() + venta.estado.slice(1)}
-        </span>
-      ),
+      accessor: (venta: Venta) => {
+        const estadoMap: Record<string, { label: string; class: string }> = {
+          'pendiente': { label: 'Pendiente', class: 'warning' },
+          'completada': { label: 'Completada', class: 'success' },
+          'entregada': { label: 'Entregada', class: 'info' },
+          'anulada': { label: 'Anulada', class: 'danger' },
+        };
+        const estado = estadoMap[venta.estado] || { label: venta.estado, class: 'default' };
+        return <span className={`badge badge-${estado.class}`}>{estado.label}</span>;
+      },
     },
     {
       header: 'Método de Pago',
@@ -169,11 +223,9 @@ export const VentaList: React.FC = () => {
       header: 'Acciones',
       accessor: (venta: Venta) => (
         <div className="actions">
-          <Link to={`/ventas/${venta.id}`}>
-            <Button size="small" variant="secondary">
-              Ver Detalle
-            </Button>
-          </Link>
+          <Button size="small" variant="secondary" onClick={() => handleVerDetalle(venta)}>
+            Ver Detalle
+          </Button>
           {venta.estado === 'pendiente' && (
             <Button size="small" variant="danger" onClick={() => handleAnular(venta.id)}>
               Anular
@@ -188,13 +240,68 @@ export const VentaList: React.FC = () => {
     <div className="venta-list">
       <div className="page-header">
         <h1>Ventas</h1>
-        <Link to="/ventas/crear">
-          <Button>+ Nueva Venta</Button>
-        </Link>
+      </div>
+
+      {/* Cards de Resumen */}
+      <div className="stats-summary">
+        <Card className="stat-card">
+          <div className="stat-card__icon stat-card__icon--primary">💰</div>
+          <div className="stat-card__content">
+            <div className="stat-card__label">Ventas de Hoy</div>
+            <div className="stat-card__value">${Math.round(stats.totalHoy).toLocaleString('es-ES')}</div>
+            <div className="stat-card__sublabel">{stats.cantidadHoy} ventas</div>
+          </div>
+        </Card>
+
+        <Card className="stat-card">
+          <div className="stat-card__icon stat-card__icon--warning">⏳</div>
+          <div className="stat-card__content">
+            <div className="stat-card__label">Pendientes</div>
+            <div className="stat-card__value">{stats.pendientes}</div>
+            <div className="stat-card__sublabel">por procesar</div>
+          </div>
+        </Card>
+
+        <Card className="stat-card">
+          <div className="stat-card__icon stat-card__icon--success">✓</div>
+          <div className="stat-card__content">
+            <div className="stat-card__label">Completadas</div>
+            <div className="stat-card__value">{stats.completadas}</div>
+            <div className="stat-card__sublabel">finalizadas</div>
+          </div>
+        </Card>
+
+        <Card className="stat-card">
+          <div className="stat-card__icon stat-card__icon--info">📊</div>
+          <div className="stat-card__content">
+            <div className="stat-card__label">Total Ventas</div>
+            <div className="stat-card__value">{pagination?.total || 0}</div>
+            <div className="stat-card__sublabel">registradas</div>
+          </div>
+        </Card>
       </div>
 
       <Card>
-        <div className="filters">
+        {/* Búsqueda Rápida */}
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="🔍 Buscar por cliente, teléfono o # de venta..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            {showFilters ? '✕ Ocultar Filtros' : '⚙ Filtros Avanzados'}
+          </Button>
+        </div>
+
+        {/* Filtros Colapsables */}
+        {showFilters && (
+          <div className="filters">
           <div className="filter-group">
             <label htmlFor="estado">Estado</label>
             <select
@@ -235,6 +342,7 @@ export const VentaList: React.FC = () => {
             </Button>
           </div>
         </div>
+        )}
 
         {error && <div className="error-message">{error}</div>}
 
@@ -268,6 +376,104 @@ export const VentaList: React.FC = () => {
           </>
         )}
       </Card>
+
+      {/* Modal Detalle de Venta */}
+      {showModal && selectedVenta && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Detalle de Venta #{selectedVenta.id}</h2>
+              <button className="modal-close" onClick={closeModal}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="detail-section">
+                <h3>Información General</h3>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <span className="detail-label">Cliente:</span>
+                    <span className="detail-value">{selectedVenta.cliente?.nombre || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Teléfono:</span>
+                    <span className="detail-value">{selectedVenta.cliente?.telefono || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Método de Pago:</span>
+                    <span className="detail-value">{selectedVenta.metodoPago?.nombre || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Estado:</span>
+                    <span className={`badge badge-${
+                      selectedVenta.estado === 'pendiente' ? 'warning' :
+                      selectedVenta.estado === 'completada' ? 'success' :
+                      selectedVenta.estado === 'entregada' ? 'info' : 'danger'
+                    }`}>
+                      {selectedVenta.estado.charAt(0).toUpperCase() + selectedVenta.estado.slice(1)}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Fecha:</span>
+                    <span className="detail-value">{formatDate(selectedVenta.createdAt)}</span>
+                  </div>
+                  {selectedVenta.direccionEntrega && (
+                    <div className="detail-item detail-item--full">
+                      <span className="detail-label">Dirección de Entrega:</span>
+                      <span className="detail-value">{selectedVenta.direccionEntrega}</span>
+                    </div>
+                  )}
+                  {selectedVenta.notas && (
+                    <div className="detail-item detail-item--full">
+                      <span className="detail-label">Notas:</span>
+                      <span className="detail-value">{selectedVenta.notas}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {selectedVenta.items && selectedVenta.items.length > 0 && (
+                <div className="detail-section">
+                  <h3>Productos</h3>
+                  <table className="detail-table">
+                    <thead>
+                      <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unit.</th>
+                        <th>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedVenta.items.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.producto?.nombre || 'N/A'}</td>
+                          <td>{item.cantidad}</td>
+                          <td>{formatCurrency(item.precioUnitario)}</td>
+                          <td>{formatCurrency(item.subtotal)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div className="detail-section">
+                <div className="detail-total">
+                  <span className="detail-total__label">Total:</span>
+                  <span className="detail-total__value">{formatCurrency(selectedVenta.total)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FAB Nueva Venta */}
+      <Link to="/ventas/crear" className="fab" title="Nueva Venta">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </Link>
     </div>
   );
 };

@@ -24,7 +24,6 @@ export const ProductCreate: React.FC = () => {
   const [selectedIngredient, setSelectedIngredient] = useState({
     ingredienteId: 0,
     cantidad: 0,
-    unidadMedida: 'gramos',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,18 +36,13 @@ export const ProductCreate: React.FC = () => {
 
   const handleAddIngredient = () => {
     if (selectedIngredient.ingredienteId && selectedIngredient.cantidad > 0) {
-      const ingrediente = ingredients.find((i: any) => i.id === selectedIngredient.ingredienteId);
       setFormData((prev) => ({
         ...prev,
-        ingredientes: [...(prev.ingredientes || []), {
-          ...selectedIngredient,
-          unidadMedida: ingrediente?.unidadMedida || 'gramos',
-        }],
+        ingredientes: [...(prev.ingredientes || []), selectedIngredient],
       }));
       setSelectedIngredient({
         ingredienteId: 0,
         cantidad: 0,
-        unidadMedida: 'gramos',
       });
     }
   };
@@ -108,7 +102,6 @@ export const ProductCreate: React.FC = () => {
                 options={ingredients.map((ing: any) => ({
                   value: ing.id,
                   label: ing.nombre,
-                  secondary: ing.unidadMedida,
                 }))}
                 value={selectedIngredient.ingredienteId}
                 onChange={(ingredienteId) =>
@@ -147,7 +140,7 @@ export const ProductCreate: React.FC = () => {
                   return (
                     <div key={index} className="ingredient-item">
                       <span>
-                        {ingrediente?.nombre}: {ing.cantidad} {ing.unidadMedida}
+                        {ingrediente?.nombre}: {ing.cantidad}
                       </span>
                       <Button
                         type="button"
