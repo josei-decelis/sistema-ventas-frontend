@@ -1,0 +1,13 @@
+@import '../styles/variables';
+
+.ingredient-create {
+  max-width: 600px;
+  margin: 0 auto;
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+  }
+}

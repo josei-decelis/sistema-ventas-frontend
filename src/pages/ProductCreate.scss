@@ -1,0 +1,80 @@
+@import '../styles/variables';
+
+.product-create {
+  max-width: 800px;
+  margin: 0 auto;
+
+  .ingredient-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: $color-gray-light;
+    border-radius: $border-radius;
+
+    h3 {
+      margin: 0 0 1rem 0;
+      color: $color-text;
+    }
+
+    h4 {
+      margin: 1rem 0 0.5rem 0;
+      color: $color-text-secondary;
+      font-size: 0.9rem;
+    }
+  }
+
+  .ingredient-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+
+    > * {
+      margin-bottom: 0;
+    }
+
+    .autocomplete-container,
+    .input-group {
+      margin-bottom: 0;
+    }
+
+    button {
+      height: 47px;
+      padding: 0 1.5rem;
+    }
+  }
+
+  .select-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    font-family: $font-family;
+    font-size: 1rem;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primary;
+    }
+  }
+
+  .ingredients-list {
+    margin-top: 1rem;
+  }
+
+  .ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border-radius: $border-radius;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+  }
+}
