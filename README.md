@@ -1,17 +1,20 @@
-# Frontend - Sistema de Ventas de Pizzas
+# Frontend - Sistema de Ventas
 
-Frontend profesional construido con React 17, TypeScript, TSX y SCSS para el sistema de gestión de ventas de pizzas.
+Frontend profesional construido con React 17, TypeScript, TSX y SCSS para el sistema de gestión de ventas con funcionalidades completas de CRUD, búsqueda reactiva, ordenamiento de tablas y gestión de clientes.
 
 ## 🚀 Características
 
-- ✅ React 17 con TypeScript
+- ✅ React 17 con TypeScript y TSX
 - ✅ Arquitectura modular y escalable
-- ✅ Estilos SCSS modulares
-- ✅ React Router v6
-- ✅ Hooks personalizados
+- ✅ Estilos SCSS modulares con variables centralizadas
+- ✅ React Router v6 para navegación
+- ✅ Hooks personalizados para gestión de estado
 - ✅ Cliente HTTP con fetch nativo
-- ✅ Componentes UI reutilizables
-- ✅ TypeScript estricto
+- ✅ Componentes UI reutilizables (Button, Input, Card, Table, Autocomplete, Modal)
+- ✅ Búsqueda reactiva con filtrado client-side
+- ✅ Tablas ordenables por columnas con indicadores visuales
+- ✅ Autocomplete con navegación por teclado
+- ✅ TypeScript estricto sin uso de `any`
 - ✅ Diseño responsive y profesional
 
 ## 📦 Instalación
@@ -45,38 +48,49 @@ frontend/
 │   └── index.html
 ├── src/
 │   ├── api/                    # Servicios HTTP
-│   │   ├── httpClient.ts
-│   │   ├── productApi.ts
-│   │   ├── ingredientApi.ts
-│   │   ├── batchApi.ts
-│   │   └── dashboardApi.ts
+│   │   ├── httpClient.ts       # Cliente HTTP base
+│   │   ├── clienteApi.ts       # API de clientes
+│   │   ├── dashboardApi.ts     # API de estadísticas
+│   │   ├── ingredientApi.ts    # API de ingredientes
+│   │   ├── metodoPagoApi.ts    # API de métodos de pago
+│   │   ├── productApi.ts       # API de productos
+│   │   └── ventaApi.ts         # API de ventas
 │   ├── components/            # Componentes reutilizables
 │   │   └── ui/
-│   │       ├── Button.tsx
-│   │       ├── Input.tsx
-│   │       ├── Card.tsx
-│   │       ├── Table.tsx
-│   │       └── Modal.tsx
+│   │       ├── Autocomplete.tsx  # Búsqueda con autocompletado
+│   │       ├── Button.tsx        # Botón con variantes
+│   │       ├── Card.tsx          # Tarjeta contenedora
+│   │       ├── Input.tsx         # Campo de entrada
+│   │       ├── Modal.tsx         # Diálogo modal
+│   │       └── Table.tsx         # Tabla genérica
 │   ├── hooks/                 # Hooks personalizados
-│   │   ├── useProducts.ts
-│   │   ├── useIngredients.ts
-│   │   └── useBatches.ts
+│   │   ├── useClientes.ts      # Estado de clientes
+│   │   ├── useIngredients.ts   # Estado de ingredientes
+│   │   ├── useMetodosPago.ts   # Estado de métodos de pago
+│   │   ├── useProducts.ts      # Estado de productos
+│   │   └── useVentas.ts        # Estado de ventas
 │   ├── pages/                 # Páginas principales
-│   │   ├── Home.tsx
-│   │   ├── ProductList.tsx
-│   │   ├── ProductCreate.tsx
-│   │   ├── IngredientList.tsx
-│   │   ├── IngredientCreate.tsx
-│   │   ├── BatchList.tsx
-│   │   └── BatchCreate.tsx
+│   │   ├── Home.tsx            # Dashboard principal
+│   │   ├── ClienteList.tsx     # Lista de clientes
+│   │   ├── ClienteForm.tsx     # Crear/editar cliente
+│   │   ├── ClienteDetail.tsx   # Historial de cliente
+│   │   ├── ProductList.tsx     # Lista de productos
+│   │   ├── ProductCreate.tsx   # Crear producto
+│   │   ├── IngredientList.tsx  # Lista de ingredientes
+│   │   ├── IngredientCreate.tsx # Crear ingrediente
+│   │   ├── MetodoPagoList.tsx  # Lista de métodos de pago
+│   │   ├── VentaList.tsx       # Lista de ventas
+│   │   └── VentaCreate.tsx     # Crear venta
 │   ├── styles/                # Estilos globales
-│   │   ├── globals.scss
-│   │   └── variables.scss
+│   │   ├── globals.scss        # Estilos base
+│   │   └── variables.scss      # Variables SCSS
 │   ├── types/                 # Tipos TypeScript
-│   │   ├── product.ts
-│   │   ├── ingredient.ts
-│   │   ├── batch.ts
-│   │   └── common.ts
+│   │   ├── cliente.ts          # Tipos de cliente
+│   │   ├── common.ts           # Tipos comunes
+│   │   ├── ingredient.ts       # Tipos de ingrediente
+│   │   ├── metodoPago.ts       # Tipos de método de pago
+│   │   ├── product.ts          # Tipos de producto
+│   │   └── venta.ts            # Tipos de venta
 │   ├── App.tsx
 │   ├── App.scss
 │   └── index.tsx
@@ -86,65 +100,124 @@ frontend/
 
 ## 🎨 Componentes UI
 
-### Button
-Botón reutilizable con variantes: `primary`, `secondary`, `danger`, `success`
+### Autocomplete
+Componente de búsqueda con autocompletado que incluye:
+- Filtrado en tiempo real por texto principal y secundario
+- Navegación por teclado (↑↓ Enter Escape)
+- Click fuera para cerrar
+- Resaltado de opción seleccionada
+- Limpieza automática al seleccionar
 
-### Input
-Campo de entrada con validación y mensajes de error
+### Button
+Botón reutilizable con variantes y tamaños:
+- Variantes: `primary`, `secondary`, `danger`
+- Tamaños: `small`, `medium` (default), `large`
 
 ### Card
-Tarjeta contenedora con título opcional
+Tarjeta contenedora con título opcional y secciones (header, body)
 
-### Table
-Tabla genérica con tipado TypeScript
+### Input
+Campo de entrada con:
+- Label y placeholder
+- Validación HTML5 (required, min, max, pattern)
+- Soporte para tipos: text, number, email, password, tel
+- Acepta valores undefined para inicialización
 
 ### Modal
-Modal/diálogo reutilizable
+Modal/diálogo reutilizable para confirmaciones y formularios
+
+### Table
+Tabla genérica tipada con:
+- Columnas configurables (header como string o ReactNode)
+- Accessor como propiedad o función
+- Mensaje de vacío personalizable
+- Estado de carga
 
 ## 🔌 APIs
 
-Todas las llamadas al backend están centralizadas en la carpeta `api/`:
+Todas las llamadas al backend están centralizadas en la carpeta `api/` con cliente HTTP base:
 
-- **productApi**: CRUD de productos
-- **ingredientApi**: CRUD de ingredientes
-- **batchApi**: Gestión de ventas, clientes y métodos de pago
-- **dashboardApi**: Estadísticas y reportes
+- **httpClient**: Cliente fetch configurado con base URL y manejo de errores
+- **clienteApi**: CRUD completo de clientes + endpoint de búsqueda + bulk creation
+- **dashboardApi**: Estadísticas del negocio (ventas del mes, ventas de hoy, productos más vendidos, clientes frecuentes)
+- **ingredientApi**: CRUD de ingredientes + bulk creation
+- **metodoPagoApi**: Lista y creación de métodos de pago
+- **productApi**: CRUD de productos con ingredientes asociados + bulk creation
+- **ventaApi**: CRUD de ventas + anulación + bulk creation
 
 ## 🎯 Funcionalidades
 
+### Dashboard (Home)
+- ✅ Ventas del mes actual (total y cantidad)
+- ✅ Ventas de hoy (total y cantidad)
+- ✅ Total de clientes registrados
+- ✅ Top 5 productos más vendidos con cantidades y total generado
+- ✅ Top 5 clientes frecuentes con cantidad de compras y total gastado
+- ✅ Formato de moneda sin decimales con separador de miles
+
+### Clientes
+- ✅ Lista de clientes con búsqueda reactiva (nombre, teléfono, dirección)
+- ✅ Filtrado client-side con useMemo (carga 1000 registros una vez)
+- ✅ Ordenamiento por ID, Nombre, Dirección (ascendente/descendente)
+- ✅ Crear cliente (nombre, teléfono, dirección, notas)
+- ✅ Editar cliente
+- ✅ Eliminar cliente (validación si tiene ventas)
+- ✅ Ver historial completo del cliente con:
+  - Información personal
+  - Estadísticas (total gastado, cantidad de compras, ticket promedio)
+  - Lista detallada de todas sus ventas con productos
+- ✅ Botón "+ Venta" directo desde la lista
+- ✅ Bulk creation endpoint
+
 ### Productos
-- ✅ Listar productos
-- ✅ Crear producto con ingredientes
-- ✅ Editar producto
+- ✅ Lista de productos con paginación
+- ✅ Ordenamiento por ID, Nombre, Precio Base (ascendente/descendente)
+- ✅ Crear producto con autocomplete de ingredientes
+- ✅ Ingredientes opcionales para combos/bebidas
+- ✅ Muestra nombres de ingredientes en la tabla (no solo cantidad)
 - ✅ Eliminar producto
-- ✅ Ver costo estimado
-- ✅ Gestionar ingredientes del producto
+- ✅ Bulk creation endpoint
 
 ### Ingredientes
-- ✅ Listar ingredientes
-- ✅ Crear ingrediente
-- ✅ Editar ingrediente
+- ✅ Lista de ingredientes
+- ✅ Crear ingrediente (nombre, unidad de medida, costo, stock)
 - ✅ Eliminar ingrediente
-- ✅ Actualizar stock
-- ✅ Alertas de stock bajo
+- ✅ Bulk creation endpoint
 
-### Ventas (Batches)
-- ✅ Listar ventas
-- ✅ Crear nueva venta
+### Ventas
+- ✅ Lista de ventas con filtros (estado, fecha inicio, fecha fin)
+- ✅ Ordenamiento por ID, Cliente, Total, Fecha (ascendente/descendente)
+- ✅ Crear venta con:
+  - Autocomplete de cliente (búsqueda por nombre/teléfono)
+  - Auto-llenado de dirección desde cliente
+  - Autocomplete de productos
+  - Cálculo automático de totales
+  - Pre-selección de método "Transferencia"
+  - Limpieza automática de campos al agregar items
+- ✅ Estados: completado, pendiente, cancelado
+- ✅ Anular venta (solo si está pendiente)
 - ✅ Ver detalle de venta
-- ✅ Anular venta
-- ✅ Cálculo automático de totales
+- ✅ Formateo de moneda COP sin decimales
+- ✅ Bulk creation endpoint
+- ✅ Botón crear venta con clienteId pre-cargado desde parámetro URL
 
-### Dashboard
-- ✅ Resumen de ventas
-- ✅ Productos más vendidos
-- ✅ Clientes frecuentes
-- ✅ Estadísticas por método de pago
+### Métodos de Pago
+- ✅ Lista de métodos de pago
+- ✅ Crear método de pago con modal
+- ✅ Activar/desactivar métodos
+
+## ⚡ Optimizaciones
+
+- **Búsqueda reactiva client-side**: Carga 1000 registros una vez y filtra localmente con useMemo, evitando múltiples requests al backend
+- **Autocomplete con navegación por teclado**: Mejora UX permitiendo selección sin mouse
+- **Tablas ordenables**: Ordenamiento in-memory para respuesta instantánea
+- **Formato de moneda consistente**: Sin decimales y con separador de miles en todo el sistema
+- **Validación con Zod en backend**: z.coerce para conversión automática de tipos
 
 ## 🛠️ Scripts Disponibles
 
 ```bash
-npm start       # Inicia el servidor de desarrollo
+npm start       # Inicia el servidor de desarrollo en puerto 3001
 npm build       # Compila la aplicación para producción
 npm test        # Ejecuta las pruebas
 npm eject       # Expone la configuración (no reversible)
@@ -152,35 +225,49 @@ npm eject       # Expone la configuración (no reversible)
 
 ## 📝 Convenciones de Código
 
-- **Componentes**: PascalCase (ej: `Button.tsx`)
-- **Hooks**: camelCase con prefijo `use` (ej: `useProducts.ts`)
-- **Estilos**: Mismo nombre que el componente (ej: `Button.scss`)
-- **Tipos**: Interfaces en PascalCase
-- **Variables**: camelCase
+- **Componentes**: PascalCase (ej: `ClienteDetail.tsx`)
+- **Hooks**: camelCase con prefijo `use` (ej: `useClientes.ts`)
+- **Estilos**: Mismo nombre que el componente (ej: `ClienteDetail.scss`)
+- **Tipos**: Interfaces en PascalCase (ej: `Cliente`, `Venta`)
+- **Variables**: camelCase (ej: `sortedVentas`)
 - **Constantes**: UPPER_SNAKE_CASE
 
 ## 🎨 Diseño
 
 - Diseño minimalista y profesional
-- Paleta de colores coherente
-- Responsive design
-- Componentes modulares SCSS
-- Variables centralizadas
+- Paleta de colores definida en `variables.scss`:
+  - Primary: Azul para acciones principales
+  - Secondary: Gris para acciones secundarias
+  - Danger: Rojo para eliminación
+  - Success: Verde para confirmación
+- Grid layouts con CSS Grid y Flexbox
+- Componentes SCSS modulares con BEM naming
+- Variables centralizadas (`$color-*`, `$border-radius`, `$box-shadow`)
 
 ## 🔒 TypeScript
 
 Configuración estricta de TypeScript:
-- Tipos explícitos en todas las funciones
+- Tipos explícitos en todas las funciones y parámetros
 - Interfaces para todas las estructuras de datos
 - Validación en tiempo de compilación
-- Sin uso de `any`
+- Sin uso de `any` (uso estricto de tipos)
+- Coerción de tipos con Zod en backend
+- Type safety en componentes genéricos (Table, Autocomplete)
 
 ## 📱 Responsive
 
 La aplicación está optimizada para:
-- Desktop (>1024px)
-- Tablet (768px - 1024px)
-- Mobile (< 768px)
+- Desktop (>1200px): Vista completa con tablas expandidas
+- Tablet (768px - 1200px): Ajuste de columnas
+- Mobile (< 768px): Layout apilado (trabajo en progreso)
+
+## 🔗 Integración con Backend
+
+- Base URL: `http://localhost:3005/api`
+- Todas las respuestas siguen formato: `{ status, data, message }`
+- Paginación: `{ data, pagination: { total, page, limit, totalPages } }`
+- Manejo de errores centralizado en `httpClient.ts`
+- Endpoints bulk para carga masiva de datos
 
 ## 🚀 Producción
 
@@ -188,9 +275,44 @@ La aplicación está optimizada para:
 npm run build
 ```
 
-Esto genera una carpeta `build/` lista para deployment.
+Esto genera una carpeta `build/` lista para deployment en servicios como:
+- Vercel
+- Netlify
+- AWS S3 + CloudFront
+- Azure Static Web Apps
+- GitHub Pages
+
+## 🔮 Próximas Mejoras Planificadas
+
+- [ ] Autenticación con JWT y roles (Admin, Vendedor, Cajero)
+- [ ] Página de detalle de venta con items completos
+- [ ] Edición de productos e ingredientes
+- [ ] CRUD completo de métodos de pago
+- [ ] Botón "Volver" en todos los formularios
+- [ ] Notificaciones toast para feedback visual
+- [ ] Indicador de página activa en navbar
+- [ ] Modal de confirmación mejorado
+- [ ] Gráficos en dashboard (Chart.js o Recharts)
+- [ ] Impresión de ticket/factura
+- [ ] Estados intermedios de venta (en preparación, listo)
+- [ ] Gestión de stock con descuento automático
+- [ ] Reportes automáticos por email
+- [ ] Sistema de backup de base de datos
+- [ ] Modo responsive completo para móvil
+
+## 📊 Estadísticas del Proyecto
+
+- **Líneas de código**: ~8,000+ líneas
+- **Componentes**: 11 componentes UI reutilizables
+- **Páginas**: 11 páginas funcionales
+- **Hooks personalizados**: 5 hooks
+- **APIs**: 7 servicios HTTP
+- **Tipos TypeScript**: 6 archivos de tipos
 
 ## 📄 Licencia
 
 ISC
-# sistema-ventas-frontend
+
+---
+
+**Desarrollado con ❤️ para gestión de negocios de ventas**
