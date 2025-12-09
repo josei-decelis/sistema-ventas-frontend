@@ -20,32 +20,36 @@ export const Home: React.FC = () => {
   const [chartPeriod, setChartPeriod] = useState<6 | 12>(6);
   const [chartType, setChartType] = useState<'bar' | 'line'>('line');
 
-  // Cargar todas las estadísticas en paralelo al inicio
+  // Cargar estadísticas principales primero (prioridad)
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchPriorityData = async () => {
       try {
+        // Cargar lo más importante primero
+        const dataAll = await dashboardApi.getEstadisticas();
+        setStatsAll(dataAll);
+        
+        // Luego cargar datos secundarios en paralelo (no bloquean render)
         const [year, month] = selectedMonth.split('-');
         const fechaInicio = new Date(parseInt(year), parseInt(month) - 1, 1);
         const fechaFin = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
 
-        const [dataAll, dataMonth, ventasMes] = await Promise.all([
-          dashboardApi.getEstadisticas(),
+        Promise.all([
           dashboardApi.getEstadisticas({
             fechaInicio: fechaInicio.toISOString(),
             fechaFin: fechaFin.toISOString(),
           }),
           dashboardApi.getVentasPorMes(chartPeriod),
-        ]);
-
-        setStatsAll(dataAll);
-        setStatsMonth(dataMonth);
-        setVentasPorMes(ventasMes);
+        ]).then(([dataMonth, ventasMes]) => {
+          setStatsMonth(dataMonth);
+          setVentasPorMes(ventasMes);
+        });
       } catch (error) {
         setError('Error al cargar estadísticas del dashboard');
       }
     };
 
-    fetchInitialData();
+    fetchPriorityData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Recargar gráfico cuando cambia el período
@@ -111,7 +115,14 @@ export const Home: React.FC = () => {
     return label.charAt(0).toUpperCase() + label.slice(1);
   }, [selectedMonth]);
 
-  if (!statsAll) return <div className="loading">Cargando...</div>;
+  if (!statsAll) {
+    return (
+      <div className="home-loading">
+        <div className="loading-spinner"></div>
+        <p>Cargando dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="home">
@@ -205,9 +216,15 @@ export const Home: React.FC = () => {
         </div>
         
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={300}>
-            {chartType === 'line' ? (
-              <LineChart data={ventasPorMes} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          {ventasPorMes.length === 0 ? (
+            <div className="chart-loading">
+              <div className="loading-spinner-small"></div>
+              <p>Cargando gráfico...</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              {chartType === 'line' ? (
+                <LineChart data={ventasPorMes} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                 <XAxis 
                   dataKey="mes" 
@@ -286,6 +303,7 @@ export const Home: React.FC = () => {
               </BarChart>
             )}
           </ResponsiveContainer>
+          )}
         </div>
       </Card>
 

@@ -6,11 +6,13 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Autocomplete } from '../components/ui/Autocomplete';
+import { useToast } from '../components/ui/ToastContainer';
 import { CreateProductInput } from '../types/product';
 import './ProductCreate.scss';
 
 export const ProductCreate: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { createProduct, loading } = useProducts();
   const { ingredients } = useIngredients();
 
@@ -58,7 +60,10 @@ export const ProductCreate: React.FC = () => {
     e.preventDefault();
     const result = await createProduct(formData);
     if (result) {
-      navigate('/productos');
+      toast.success('Producto creado exitosamente');
+      navigate('/products');
+    } else {
+      toast.error('Error al crear el producto');
     }
   };
 

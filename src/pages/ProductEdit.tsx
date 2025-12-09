@@ -4,11 +4,13 @@ import { useProducts } from '../hooks/useProducts';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { useToast } from '../components/ui/ToastContainer';
 import './ProductCreate.scss';
 
 export const ProductEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const { getProduct, updateProduct, loading } = useProducts();
 
   const [formData, setFormData] = useState({
@@ -52,7 +54,10 @@ export const ProductEdit: React.FC = () => {
     if (id) {
       const result = await updateProduct(parseInt(id), formData);
       if (result) {
+        toast.success('Producto actualizado exitosamente');
         navigate('/productos');
+      } else {
+        toast.error('Error al actualizar el producto');
       }
     }
   };

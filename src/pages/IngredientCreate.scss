@@ -3,11 +3,29 @@
 .ingredient-create {
   max-width: 600px;
   margin: 0 auto;
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    padding-bottom: 100px;
+  }
 
   .form-actions {
     display: flex;
     gap: 1rem;
     justify-content: flex-end;
     margin-top: 2rem;
+
+    @media (max-width: 768px) {
+      flex-direction: column-reverse;
+      gap: 0.75rem;
+
+      button {
+        width: 100%;
+        min-height: 52px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
   }
 }

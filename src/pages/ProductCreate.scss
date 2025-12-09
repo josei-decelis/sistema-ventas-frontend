@@ -3,6 +3,12 @@
 .product-create {
   max-width: 800px;
   margin: 0 auto;
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    padding-bottom: 100px;
+  }
 
   .ingredient-section {
     margin: 2rem 0;

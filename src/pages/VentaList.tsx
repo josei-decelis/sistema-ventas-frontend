@@ -5,6 +5,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Table } from '../components/ui/Table';
 import { Input } from '../components/ui/Input';
+import { useToast } from '../components/ui/ToastContainer';
 import { Venta } from '../types/venta';
 import './VentaList.scss';
 
@@ -12,6 +13,7 @@ type SortField = 'id' | 'cliente' | 'total' | 'fecha';
 type SortOrder = 'asc' | 'desc';
 
 export const VentaList: React.FC = () => {
+  const toast = useToast();
   const { ventas, loading, error, pagination, fetchVentas, anularVenta } = useVentas();
   const [sortField, setSortField] = useState<SortField>('id');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -84,7 +86,12 @@ export const VentaList: React.FC = () => {
 
   const handleAnular = async (id: number) => {
     if (window.confirm('¿Está seguro de anular esta venta?')) {
-      await anularVenta(id);
+      const result = await anularVenta(id);
+      if (result) {
+        toast.success('Venta anulada exitosamente');
+      } else {
+        toast.error('Error al anular la venta');
+      }
     }
   };
 

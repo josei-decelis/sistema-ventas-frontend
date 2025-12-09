@@ -1,0 +1,132 @@
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease-out;
+  cursor: pointer;
+  min-width: 300px;
+  max-width: 500px;
+  border-left: 4px solid;
+
+  @media (max-width: 768px) {
+    min-width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+
+    @media (max-width: 768px) {
+      width: 22px;
+      height: 22px;
+      font-size: 14px;
+    }
+  }
+
+  &__message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+
+    @media (max-width: 768px) {
+      font-size: 13px;
+    }
+  }
+
+  &__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #333;
+    }
+  }
+
+  &--success {
+    border-left-color: #10b981;
+
+    .toast__icon {
+      background: #10b981;
+    }
+  }
+
+  &--error {
+    border-left-color: #ef4444;
+
+    .toast__icon {
+      background: #ef4444;
+    }
+  }
+
+  &--warning {
+    border-left-color: #f59e0b;
+
+    .toast__icon {
+      background: #f59e0b;
+    }
+  }
+
+  &--info {
+    border-left-color: #3b82f6;
+
+    .toast__icon {
+      background: #3b82f6;
+    }
+  }
+
+  &.closing {
+    animation: slideOutRight 0.3s ease-in;
+  }
+}

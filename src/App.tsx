@@ -13,14 +13,19 @@ import { ClienteDetail } from './pages/ClienteDetail';
 import { MetodoPagoList } from './pages/MetodoPagoList';
 import { VentaList } from './pages/VentaList';
 import { VentaCreate } from './pages/VentaCreate';
+import { MobileMenu } from './components/MobileMenu';
+import { BottomNavigation } from './components/BottomNavigation';
+import { ToastProvider } from './components/ui/ToastContainer';
 import './styles/globals.scss';
 import './App.scss';
 
 function App() {
   return (
-    <BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
       <div className="app">
-        <nav className="navbar">
+        {/* Desktop Navigation */}
+        <nav className="navbar navbar--desktop">
           <div className="navbar__container">
             <Link to="/" className="navbar__brand">
               🍕 Sistema de Ventas
@@ -48,6 +53,9 @@ function App() {
           </div>
         </nav>
 
+        {/* Mobile Navigation */}
+        <MobileMenu />
+
         <main className="main-content">
           <div className="container">
             <Routes>
@@ -74,8 +82,12 @@ function App() {
             <p>Sistema de Ventas de Pizzas © 2025</p>
           </div>
         </footer>
+
+        {/* Bottom Navigation (Mobile only) */}
+        <BottomNavigation />
       </div>
     </BrowserRouter>
+    </ToastProvider>
   );
 }
 

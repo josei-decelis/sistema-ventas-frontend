@@ -2,6 +2,22 @@
 
 .table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  @media (max-width: 768px) {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    
+    // Indicador visual de scroll
+    background: 
+      linear-gradient(90deg, white 30%, rgba(255,255,255,0)),
+      linear-gradient(90deg, rgba(255,255,255,0), white 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.2), rgba(0,0,0,0)),
+      radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.2), rgba(0,0,0,0)) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
 }
 
 .table {
@@ -19,6 +35,16 @@
     font-weight: 600;
     color: $color-text;
     border-bottom: 2px solid $color-border;
+    white-space: nowrap;
+    
+    @media (max-width: 768px) {
+      padding: 0.75rem;
+      font-size: 14px;
+      position: sticky;
+      top: 0;
+      background-color: $color-gray-light;
+      z-index: 10;
+    }
   }
 
   &__body {
@@ -28,6 +54,12 @@
       &:hover {
         background-color: rgba($color-primary, 0.05);
       }
+      
+      @media (max-width: 768px) {
+        &:active {
+          background-color: rgba($color-primary, 0.1);
+        }
+      }
     }
   }
 
@@ -35,6 +67,17 @@
     padding: 1rem;
     border-bottom: 1px solid $color-border;
     color: $color-text-secondary;
+    
+    @media (max-width: 768px) {
+      padding: 0.75rem;
+      font-size: 14px;
+      white-space: nowrap;
+      
+      // Columna de acciones más compacta en móvil
+      &:last-child {
+        padding: 0.5rem;
+      }
+    }
   }
 }
 

@@ -9,12 +9,14 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Autocomplete } from '../components/ui/Autocomplete';
+import { useToast } from '../components/ui/ToastContainer';
 import { CreateVentaInput } from '../types/venta';
 import './VentaCreate.scss';
 
 export const VentaCreate: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const toast = useToast();
   const { createVenta, loading } = useVentas();
   const { clientes, fetchClientes } = useClientes();
   const { metodosPago, fetchMetodosPago } = useMetodosPago();
@@ -160,10 +162,12 @@ export const VentaCreate: React.FC = () => {
       setValidationError('Debe especificar una dirección de entrega');
       return;
     }
-    
     const result = await createVenta(formData);
     if (result) {
+      toast.success('¡Venta creada exitosamente!');
       navigate('/ventas');
+    } else {
+      toast.error('Error al crear la venta. Por favor intente nuevamente.');
     }
   };
 
@@ -268,10 +272,10 @@ export const VentaCreate: React.FC = () => {
           <div className="items-section">
             <h3>Items del Pedido</h3>
 
-            <div className="item-type-selector" style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <span style={{ fontWeight: '500' }}>Tipo:</span>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <div className="item-type-selector">
+              <div className="type-label">Tipo:</div>
+              <div className="radio-group">
+                <label className={`radio-option ${itemType === 'producto' ? 'active' : ''}`}>
                   <input
                     type="radio"
                     name="itemType"
@@ -282,9 +286,9 @@ export const VentaCreate: React.FC = () => {
                       setSelectedItem({ productoId: 0, cantidad: 1, precioUnitario: 0 });
                     }}
                   />
-                  Producto
+                  <span>Producto</span>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <label className={`radio-option ${itemType === 'ingrediente' ? 'active' : ''}`}>
                   <input
                     type="radio"
                     name="itemType"
@@ -295,9 +299,9 @@ export const VentaCreate: React.FC = () => {
                       setSelectedItem({ productoId: 0, cantidad: 1, precioUnitario: 0 });
                     }}
                   />
-                  Ingrediente Extra
+                  <span>Ingrediente Extra</span>
                 </label>
-              </label>
+              </div>
             </div>
 
             <div className="item-form">
