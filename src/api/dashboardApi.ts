@@ -29,4 +29,19 @@ export const dashboardApi = {
       ventas: []
     };
   },
+
+  getVentasPorMes: async (meses: number = 6): Promise<Array<{
+    mes: string;
+    mesCompleto: string;
+    cantidadVentas: number;
+    montoTotal: number;
+  }>> => {
+    const response = await httpClient.get<Array<{
+      mes: string;
+      mesCompleto: string;
+      cantidadVentas: number;
+      montoTotal: number;
+    }>>('/dashboard/ventas-por-mes', { meses: meses.toString() });
+    return response.data || [];
+  },
 };

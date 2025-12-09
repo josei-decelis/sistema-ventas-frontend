@@ -1,6 +1,6 @@
 import { ApiResponse } from '../types/common';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3005/api';
 
 export class HttpError extends Error {
   constructor(

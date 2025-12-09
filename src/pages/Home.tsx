@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { dashboardApi } from '../api/dashboardApi';
 import { Card } from '../components/ui/Card';
 import { DashboardStats } from '../types/common';
@@ -7,14 +8,19 @@ import './Home.scss';
 
 export const Home: React.FC = () => {
   const [statsAll, setStatsAll] = useState<DashboardStats | null>(null);
+  const [error, setError] = useState<string>('');
   const [statsMonth, setStatsMonth] = useState<DashboardStats | null>(null);
   const [loadingMonth, setLoadingMonth] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
+  const [ventasPorMes, setVentasPorMes] = useState<any[]>([]);
+  const [chartView, setChartView] = useState<'cantidad' | 'monto'>('monto');
+  const [chartPeriod, setChartPeriod] = useState<6 | 12>(6);
+  const [chartType, setChartType] = useState<'bar' | 'line'>('line');
 
-  // Cargar ambas estadísticas en paralelo al inicio
+  // Cargar todas las estadísticas en paralelo al inicio
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -22,23 +28,41 @@ export const Home: React.FC = () => {
         const fechaInicio = new Date(parseInt(year), parseInt(month) - 1, 1);
         const fechaFin = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
 
-        const [dataAll, dataMonth] = await Promise.all([
+        const [dataAll, dataMonth, ventasMes] = await Promise.all([
           dashboardApi.getEstadisticas(),
           dashboardApi.getEstadisticas({
             fechaInicio: fechaInicio.toISOString(),
             fechaFin: fechaFin.toISOString(),
           }),
+          dashboardApi.getVentasPorMes(chartPeriod),
         ]);
 
         setStatsAll(dataAll);
         setStatsMonth(dataMonth);
+        setVentasPorMes(ventasMes);
       } catch (error) {
-        console.error('Error al cargar estadísticas:', error);
+        setError('Error al cargar estadísticas del dashboard');
       }
     };
 
     fetchInitialData();
   }, []);
+
+  // Recargar gráfico cuando cambia el período
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        const ventasMes = await dashboardApi.getVentasPorMes(chartPeriod);
+        setVentasPorMes(ventasMes);
+      } catch (error) {
+        // Error silently handled
+      }
+    };
+    
+    if (statsAll) {
+      fetchChartData();
+    }
+  }, [chartPeriod, statsAll]);
 
   // Cargar solo estadísticas del mes cuando cambia el selector
   useEffect(() => {
@@ -55,7 +79,7 @@ export const Home: React.FC = () => {
         });
         setStatsMonth(data);
       } catch (error) {
-        console.error('Error al cargar estadísticas del mes:', error);
+        // Error silently handled - stats will remain null
       } finally {
         setLoadingMonth(false);
       }
@@ -127,6 +151,143 @@ export const Home: React.FC = () => {
           <div className="stat-sublabel">{statsAll?.resumen.totalClientes} clientes registrados</div>
         </Card>
       </div>
+
+      {/* Gráfico de Ventas */}
+      <Card>
+        <div className="chart-header">
+          <h3>📊 Historial de Ventas</h3>
+          <div className="chart-controls">
+            <div className="toggle-group">
+              <button
+                className={`toggle-btn ${chartType === 'line' ? 'active' : ''}`}
+                onClick={() => setChartType('line')}
+                title="Gráfico de línea"
+              >
+                📈
+              </button>
+              <button
+                className={`toggle-btn ${chartType === 'bar' ? 'active' : ''}`}
+                onClick={() => setChartType('bar')}
+                title="Gráfico de barras"
+              >
+                📊
+              </button>
+            </div>
+            <div className="toggle-group">
+              <button
+                className={`toggle-btn ${chartView === 'monto' ? 'active' : ''}`}
+                onClick={() => setChartView('monto')}
+              >
+                Montos
+              </button>
+              <button
+                className={`toggle-btn ${chartView === 'cantidad' ? 'active' : ''}`}
+                onClick={() => setChartView('cantidad')}
+              >
+                Cantidad
+              </button>
+            </div>
+            <div className="toggle-group">
+              <button
+                className={`toggle-btn ${chartPeriod === 6 ? 'active' : ''}`}
+                onClick={() => setChartPeriod(6)}
+              >
+                6 meses
+              </button>
+              <button
+                className={`toggle-btn ${chartPeriod === 12 ? 'active' : ''}`}
+                onClick={() => setChartPeriod(12)}
+              >
+                12 meses
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="chart-container">
+          <ResponsiveContainer width="100%" height={300}>
+            {chartType === 'line' ? (
+              <LineChart data={ventasPorMes} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <XAxis 
+                  dataKey="mes" 
+                  tick={{ fontSize: 12 }}
+                  stroke="#666"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  stroke="#666"
+                  tickFormatter={(value) => 
+                    chartView === 'monto' 
+                      ? `$${(value / 1000).toFixed(0)}k`
+                      : value.toString()
+                  }
+                />
+                <Tooltip 
+                  formatter={(value: any) => [
+                    chartView === 'monto' 
+                      ? `$${value.toLocaleString('es-ES')}`
+                      : `${value} ventas`,
+                    chartView === 'monto' ? 'Monto Total' : 'Cantidad de Ventas'
+                  ]}
+                  contentStyle={{ 
+                    backgroundColor: '#fff',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    padding: '10px'
+                  }}
+                />
+                <Line 
+                  type="monotone"
+                  dataKey={chartView === 'monto' ? 'montoTotal' : 'cantidadVentas'}
+                  stroke="#0066cc"
+                  strokeWidth={3}
+                  dot={{ fill: '#0066cc', r: 5 }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            ) : (
+              <BarChart data={ventasPorMes} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <XAxis 
+                  dataKey="mes" 
+                  tick={{ fontSize: 12 }}
+                  stroke="#666"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  stroke="#666"
+                  tickFormatter={(value) => 
+                    chartView === 'monto' 
+                      ? `$${(value / 1000).toFixed(0)}k`
+                      : value.toString()
+                  }
+                />
+                <Tooltip 
+                  formatter={(value: any) => [
+                    chartView === 'monto' 
+                      ? `$${value.toLocaleString('es-ES')}`
+                      : `${value} ventas`,
+                    chartView === 'monto' ? 'Monto Total' : 'Cantidad de Ventas'
+                  ]}
+                  contentStyle={{ 
+                    backgroundColor: '#fff',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    padding: '10px'
+                  }}
+                />
+                <Bar 
+                  dataKey={chartView === 'monto' ? 'montoTotal' : 'cantidadVentas'}
+                  fill="#0066cc"
+                  radius={[8, 8, 0, 0]}
+                  maxBarSize={40}
+                />
+              </BarChart>
+            )}
+          </ResponsiveContainer>
+        </div>
+      </Card>
 
       {/* Rankings Históricos */}
       <div className="dashboard-content">

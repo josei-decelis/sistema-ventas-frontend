@@ -115,6 +115,16 @@ export const ClienteList: React.FC = () => {
     { header: 'Teléfono', accessor: 'telefono' as keyof Cliente },
     {
       header: (
+        <span onClick={() => handleSort('direccion')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+          Dirección {sortField === 'direccion' && (sortOrder === 'asc' ? '↑' : '↓')}
+        </span>
+      ),
+      accessor: (cliente: Cliente) => (
+        <span className="direccion-text">{cliente.direccion || 'N/A'}</span>
+      ),
+    },
+    {
+      header: (
         <span onClick={() => handleSort('compras')} style={{ cursor: 'pointer', userSelect: 'none' }}>
           Compras {sortField === 'compras' && (sortOrder === 'asc' ? '↑' : '↓')}
         </span>
@@ -197,6 +207,23 @@ export const ClienteList: React.FC = () => {
             </Button>
           )}
         </div>
+
+        {searchQuery && (
+          <div style={{
+            padding: '8px 16px',
+            marginBottom: '16px',
+            backgroundColor: '#f0f7ff',
+            border: '1px solid #b3d9ff',
+            borderRadius: '4px',
+            color: '#0066cc',
+            fontSize: '14px'
+          }}>
+            {filteredClientes.length === 0 
+              ? '❌ No se encontraron resultados'
+              : `✓ ${filteredClientes.length} ${filteredClientes.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`
+            }
+          </div>
+        )}
 
         {error && <div className="error-message">{error}</div>}
 

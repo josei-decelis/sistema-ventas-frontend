@@ -31,6 +31,7 @@ export const VentaList: React.FC = () => {
 
   useEffect(() => {
     fetchVentas();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const [filters, setFilters] = useState({
