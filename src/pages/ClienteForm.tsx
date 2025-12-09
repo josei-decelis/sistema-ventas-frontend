@@ -5,12 +5,14 @@ import { clienteApi } from '../api/clienteApi';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { useToast } from '../components/ui/ToastContainer';
 import { CreateClienteInput } from '../types/cliente';
 import './ClienteForm.scss';
 
 export const ClienteForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const toast = useToast();
   const { createCliente, updateCliente, loading } = useClientes();
   const isEdit = Boolean(id);
 
@@ -48,12 +50,18 @@ export const ClienteForm: React.FC = () => {
     if (isEdit && id) {
       const result = await updateCliente(Number(id), formData);
       if (result) {
+        toast.success('Cliente actualizado exitosamente');
         navigate('/clientes');
+      } else {
+        toast.error('Error al actualizar el cliente');
       }
     } else {
       const result = await createCliente(formData);
       if (result) {
+        toast.success('Cliente creado exitosamente');
         navigate('/clientes');
+      } else {
+        toast.error('Error al crear el cliente');
       }
     }
   };

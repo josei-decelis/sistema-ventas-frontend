@@ -4,12 +4,14 @@ import { useIngredients } from '../hooks/useIngredients';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { useToast } from '../components/ui/ToastContainer';
 import { UpdateIngredientInput } from '../types/ingredient';
 import './IngredientCreate.scss';
 
 export const IngredientEdit: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const toast = useToast();
   const { getIngredient, updateIngredient, loading } = useIngredients();
 
   const [formData, setFormData] = useState<UpdateIngredientInput>({
@@ -51,7 +53,10 @@ export const IngredientEdit: React.FC = () => {
     
     const result = await updateIngredient(Number(id), formData);
     if (result) {
+      toast.success('Ingrediente actualizado exitosamente');
       navigate('/ingredientes');
+    } else {
+      toast.error('Error al actualizar el ingrediente');
     }
   };
 

@@ -4,11 +4,13 @@ import { useIngredients } from '../hooks/useIngredients';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { useToast } from '../components/ui/ToastContainer';
 import { CreateIngredientInput } from '../types/ingredient';
 import './IngredientCreate.scss';
 
 export const IngredientCreate: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { createIngredient, loading } = useIngredients();
 
   const [formData, setFormData] = useState<CreateIngredientInput>({
@@ -28,7 +30,10 @@ export const IngredientCreate: React.FC = () => {
     e.preventDefault();
     const result = await createIngredient(formData);
     if (result) {
-      navigate('/ingredientes');
+      toast.success('Ingrediente creado exitosamente');
+      navigate('/ingredients');
+    } else {
+      toast.error('Error al crear el ingrediente');
     }
   };
 
