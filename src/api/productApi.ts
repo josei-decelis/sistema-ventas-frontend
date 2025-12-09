@@ -52,7 +52,6 @@ export const productApi = {
     ingredientes: Array<{
       ingredienteId: number;
       cantidad: number;
-      unidadMedida: string;
     }>
   ): Promise<Product> => {
     const response = await httpClient.put<{ producto: Product }>(

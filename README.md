@@ -148,17 +148,20 @@ Todas las llamadas al backend están centralizadas en la carpeta `api/` con clie
 ## 🎯 Funcionalidades
 
 ### Dashboard (Home)
-- ✅ Ventas del mes actual (total y cantidad)
-- ✅ Ventas de hoy (total y cantidad)
-- ✅ Total de clientes registrados
-- ✅ Top 5 productos más vendidos con cantidades y total generado
-- ✅ Top 5 clientes frecuentes con cantidad de compras y total gastado
+- ✅ Ventas del mes actual (total y cantidad) con comparativa vs mes anterior
+- ✅ Ventas de hoy (total y cantidad) con comparativa vs mismo día hace 1 mes
+- ✅ Indicadores de diferencia porcentual y absoluta (positivo en verde, negativo en rojo)
+- ✅ Total histórico de ventas con cantidad de clientes
+- ✅ Top 5 productos más vendidos con cantidades y total generado (formato ranking)
+- ✅ Top 5 clientes frecuentes con cantidad de compras y total gastado (formato ranking)
 - ✅ Formato de moneda sin decimales con separador de miles
+- ✅ Carga paralela optimizada de todas las métricas
 
 ### Clientes
 - ✅ Lista de clientes con búsqueda reactiva (nombre, teléfono, dirección)
 - ✅ Filtrado client-side con useMemo (carga 1000 registros una vez)
 - ✅ Ordenamiento por ID, Nombre, Dirección (ascendente/descendente)
+- ✅ Badge VIP elegante (dorado) para clientes destacados
 - ✅ Crear cliente (nombre, teléfono, dirección, notas)
 - ✅ Editar cliente
 - ✅ Eliminar cliente (validación si tiene ventas)
@@ -166,7 +169,7 @@ Todas las llamadas al backend están centralizadas en la carpeta `api/` con clie
   - Información personal
   - Estadísticas (total gastado, cantidad de compras, ticket promedio)
   - Lista detallada de todas sus ventas con productos
-- ✅ Botón "+ Venta" directo desde la lista
+- ✅ Botón "+ Venta" directo desde la lista con estilo profesional
 - ✅ Bulk creation endpoint
 
 ### Productos
@@ -179,7 +182,8 @@ Todas las llamadas al backend están centralizadas en la carpeta `api/` con clie
 - ✅ Bulk creation endpoint
 
 ### Ingredientes
-- ✅ Lista de ingredientes
+- ✅ Lista de ingredientes con badges de uso en productos
+- ✅ Indicador visual de popularidad con colores sobrios
 - ✅ Crear ingrediente (nombre, unidad de medida, costo, stock)
 - ✅ Eliminar ingrediente
 - ✅ Bulk creation endpoint
@@ -187,6 +191,12 @@ Todas las llamadas al backend están centralizadas en la carpeta `api/` con clie
 ### Ventas
 - ✅ Lista de ventas con filtros (estado, fecha inicio, fecha fin)
 - ✅ Ordenamiento por ID, Cliente, Total, Fecha (ascendente/descendente)
+- ✅ Modal de detalle de venta con información completa:
+  - Datos del cliente y dirección de entrega
+  - Método de pago y estado con badge
+  - Tabla de productos con cantidades y precios
+  - Total y fecha de la venta
+  - Notas adicionales
 - ✅ Crear venta con:
   - Autocomplete de cliente (búsqueda por nombre/teléfono)
   - Auto-llenado de dirección desde cliente
@@ -194,9 +204,8 @@ Todas las llamadas al backend están centralizadas en la carpeta `api/` con clie
   - Cálculo automático de totales
   - Pre-selección de método "Transferencia"
   - Limpieza automática de campos al agregar items
-- ✅ Estados: completado, pendiente, cancelado
+- ✅ Estados: completado, pendiente, cancelado (backend acepta variantes de nomenclatura)
 - ✅ Anular venta (solo si está pendiente)
-- ✅ Ver detalle de venta
 - ✅ Formateo de moneda COP sin decimales
 - ✅ Bulk creation endpoint
 - ✅ Botón crear venta con clienteId pre-cargado desde parámetro URL
@@ -213,6 +222,10 @@ Todas las llamadas al backend están centralizadas en la carpeta `api/` con clie
 - **Tablas ordenables**: Ordenamiento in-memory para respuesta instantánea
 - **Formato de moneda consistente**: Sin decimales y con separador de miles en todo el sistema
 - **Validación con Zod en backend**: z.coerce para conversión automática de tipos
+- **Carga paralela en dashboard**: Promise.all para obtener todas las métricas simultáneamente
+- **Modal de detalle**: Renderizado condicional sin navegación innecesaria
+- **Comparativas en tiempo real**: Cálculos de diferencias porcentuales y absolutas en backend
+- **Tolerancia en estados**: Backend acepta 'completado', 'completada', 'Completada' sin errores
 
 ## 🛠️ Scripts Disponibles
 
@@ -234,15 +247,19 @@ npm eject       # Expone la configuración (no reversible)
 
 ## 🎨 Diseño
 
-- Diseño minimalista y profesional
+- Diseño minimalista y profesional con énfasis en sobriedad
 - Paleta de colores definida en `variables.scss`:
   - Primary: Azul para acciones principales
   - Secondary: Gris para acciones secundarias
   - Danger: Rojo para eliminación
   - Success: Verde para confirmación
+  - Gold: Dorado elegante para elementos VIP
+- Badges con colores sobrios y profesionales
 - Grid layouts con CSS Grid y Flexbox
 - Componentes SCSS modulares con BEM naming
 - Variables centralizadas (`$color-*`, `$border-radius`, `$box-shadow`)
+- Modales con overlay semitransparente y animaciones suaves
+- Indicadores de comparativa con códigos de color intuitivos (verde/rojo)
 
 ## 🔒 TypeScript
 
@@ -284,8 +301,8 @@ Esto genera una carpeta `build/` lista para deployment en servicios como:
 
 ## 🔮 Próximas Mejoras Planificadas
 
+### Funcionalidad General
 - [ ] Autenticación con JWT y roles (Admin, Vendedor, Cajero)
-- [ ] Página de detalle de venta con items completos
 - [ ] Edición de productos e ingredientes
 - [ ] CRUD completo de métodos de pago
 - [ ] Botón "Volver" en todos los formularios
@@ -294,11 +311,19 @@ Esto genera una carpeta `build/` lista para deployment en servicios como:
 - [ ] Modal de confirmación mejorado
 - [ ] Gráficos en dashboard (Chart.js o Recharts)
 - [ ] Impresión de ticket/factura
-- [ ] Estados intermedios de venta (en preparación, listo)
-- [ ] Gestión de stock con descuento automático
 - [ ] Reportes automáticos por email
 - [ ] Sistema de backup de base de datos
 - [ ] Modo responsive completo para móvil
+
+### Específico para Delivery (Fase 1)
+- [ ] **CRUD de repartidores** con estados (disponible/ocupado/desconectado)
+- [ ] **Gestión de zonas de entrega** con tiempos y precios variables
+- [ ] **Estados granulares de venta**: Recibida → Preparando → Lista → En camino → Entregada
+- [ ] **Panel Kanban** para tracking visual de pedidos
+- [ ] **Sistema de notificaciones** en tiempo real (WebSocket/SSE)
+- [ ] **Inventario en tiempo real** con descuento automático al confirmar venta
+- [ ] **Tiempos estimados** de entrega por zona
+- [ ] **Tracking de repartidores** (opcional: integración con mapas)
 
 ## 📊 Estadísticas del Proyecto
 

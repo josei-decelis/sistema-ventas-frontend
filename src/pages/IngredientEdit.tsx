@@ -1,20 +1,41 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useIngredients } from '../hooks/useIngredients';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { CreateIngredientInput } from '../types/ingredient';
+import { UpdateIngredientInput } from '../types/ingredient';
 import './IngredientCreate.scss';
 
-export const IngredientCreate: React.FC = () => {
+export const IngredientEdit: React.FC = () => {
   const navigate = useNavigate();
-  const { createIngredient, loading } = useIngredients();
+  const { id } = useParams<{ id: string }>();
+  const { getIngredient, updateIngredient, loading } = useIngredients();
 
-  const [formData, setFormData] = useState<CreateIngredientInput>({
+  const [formData, setFormData] = useState<UpdateIngredientInput>({
     nombre: '',
     costoUnitario: 0,
   });
+
+  const [loadingData, setLoadingData] = useState(true);
+
+  useEffect(() => {
+    const loadIngredient = async () => {
+      if (!id) return;
+      
+      const ingredient = await getIngredient(Number(id));
+      if (ingredient) {
+        setFormData({
+          nombre: ingredient.nombre,
+          costoUnitario: ingredient.costoUnitario,
+        });
+      }
+      setLoadingData(false);
+    };
+
+    loadIngredient();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -26,15 +47,21 @@ export const IngredientCreate: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await createIngredient(formData);
+    if (!id) return;
+    
+    const result = await updateIngredient(Number(id), formData);
     if (result) {
       navigate('/ingredientes');
     }
   };
 
+  if (loadingData) {
+    return <div className="loading">Cargando...</div>;
+  }
+
   return (
     <div className="ingredient-create">
-      <Card title="Crear Nuevo Ingrediente">
+      <Card title="Editar Ingrediente">
         <form onSubmit={handleSubmit}>
           <Input
             label="Nombre"
@@ -49,6 +76,7 @@ export const IngredientCreate: React.FC = () => {
             name="costoUnitario"
             type="number"
             min="0"
+            step="0.01"
             value={formData.costoUnitario}
             onChange={handleChange}
             required
@@ -59,7 +87,7 @@ export const IngredientCreate: React.FC = () => {
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Creando...' : 'Crear Ingrediente'}
+              {loading ? 'Actualizando...' : 'Actualizar Ingrediente'}
             </Button>
           </div>
         </form>

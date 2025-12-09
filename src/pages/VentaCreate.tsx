@@ -4,6 +4,7 @@ import { useVentas } from '../hooks/useVentas';
 import { useClientes } from '../hooks/useClientes';
 import { useMetodosPago } from '../hooks/useMetodosPago';
 import { useProducts } from '../hooks/useProducts';
+import { useIngredients } from '../hooks/useIngredients';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -18,6 +19,8 @@ export const VentaCreate: React.FC = () => {
   const { clientes, fetchClientes } = useClientes();
   const { metodosPago, fetchMetodosPago } = useMetodosPago();
   const { products, fetchProducts } = useProducts();
+  const { ingredients, fetchIngredients } = useIngredients();
+  const [itemType, setItemType] = useState<'producto' | 'ingrediente'>('producto');
 
   const [formData, setFormData] = useState<CreateVentaInput>({
     clienteId: 0,
@@ -31,6 +34,7 @@ export const VentaCreate: React.FC = () => {
     fetchClientes(1, 1000);
     fetchMetodosPago();
     fetchProducts({ page: 1, limit: 1000 });
+    fetchIngredients();
   }, []);
 
   useEffect(() => {
@@ -92,6 +96,17 @@ export const VentaCreate: React.FC = () => {
     }
   };
 
+  const handleIngredientChange = (ingredienteId: number) => {
+    const ingredient = ingredients.find((i) => i.id === ingredienteId);
+    if (ingredient) {
+      setSelectedItem({
+        productoId: ingredienteId,
+        cantidad: 1,
+        precioUnitario: ingredient.costoUnitario,
+      });
+    }
+  };
+
   const handleAddItem = () => {
     if (selectedItem.productoId && selectedItem.cantidad > 0) {
       setFormData((prev) => ({
@@ -100,6 +115,13 @@ export const VentaCreate: React.FC = () => {
       }));
       setSelectedItem({ productoId: 0, cantidad: 1, precioUnitario: 0 });
     }
+  };
+
+  const getItemName = (itemId: number) => {
+    const product = products.find(p => p.id === itemId);
+    if (product) return product.nombre;
+    const ingredient = ingredients.find(i => i.id === itemId);
+    return ingredient?.nombre || 'Item desconocido';
   };
 
   const handleRemoveItem = (index: number) => {
@@ -113,26 +135,29 @@ export const VentaCreate: React.FC = () => {
     return formData.items.reduce((sum, item) => sum + item.cantidad * item.precioUnitario, 0);
   };
 
+  const [validationError, setValidationError] = useState<string>('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError('');
     
     if (!formData.clienteId || formData.clienteId === 0) {
-      alert('Debe seleccionar un cliente');
+      setValidationError('Debe seleccionar un cliente');
       return;
     }
     
     if (!formData.metodoPagoId || formData.metodoPagoId === 0) {
-      alert('Debe seleccionar un método de pago');
+      setValidationError('Debe seleccionar un método de pago');
       return;
     }
     
     if (formData.items.length === 0) {
-      alert('Debe agregar al menos un producto');
+      setValidationError('Debe agregar al menos un producto');
       return;
     }
     
     if (!formData.direccionEntrega || formData.direccionEntrega.trim() === '') {
-      alert('Debe especificar una dirección de entrega');
+      setValidationError('Debe especificar una dirección de entrega');
       return;
     }
     
@@ -150,6 +175,18 @@ export const VentaCreate: React.FC = () => {
 
       <Card>
         <form onSubmit={handleSubmit}>
+          {validationError && (
+            <div className="error-banner" style={{
+              padding: '12px 16px',
+              marginBottom: '20px',
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '4px',
+              color: '#c33'
+            }}>
+              {validationError}
+            </div>
+          )}
           <div className="form-row">
             <div className="form-group">
               <Autocomplete
@@ -229,20 +266,66 @@ export const VentaCreate: React.FC = () => {
           </div>
 
           <div className="items-section">
-            <h3>Productos</h3>
+            <h3>Items del Pedido</h3>
+
+            <div className="item-type-selector" style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <span style={{ fontWeight: '500' }}>Tipo:</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="itemType"
+                    value="producto"
+                    checked={itemType === 'producto'}
+                    onChange={() => {
+                      setItemType('producto');
+                      setSelectedItem({ productoId: 0, cantidad: 1, precioUnitario: 0 });
+                    }}
+                  />
+                  Producto
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="itemType"
+                    value="ingrediente"
+                    checked={itemType === 'ingrediente'}
+                    onChange={() => {
+                      setItemType('ingrediente');
+                      setSelectedItem({ productoId: 0, cantidad: 1, precioUnitario: 0 });
+                    }}
+                  />
+                  Ingrediente Extra
+                </label>
+              </label>
+            </div>
 
             <div className="item-form">
-              <Autocomplete
-                label="Producto"
-                placeholder="Buscar producto..."
-                options={products.map(product => ({
-                  value: product.id,
-                  label: product.nombre,
-                  secondary: `$${product.precioBase.toLocaleString()}`,
-                }))}
-                value={selectedItem.productoId}
-                onChange={(productoId) => handleProductChange(productoId)}
-              />
+              {itemType === 'producto' ? (
+                <Autocomplete
+                  label="Producto"
+                  placeholder="Buscar producto..."
+                  options={products.map(product => ({
+                    value: product.id,
+                    label: product.nombre,
+                    secondary: `$${product.precioBase.toLocaleString()}`,
+                  }))}
+                  value={selectedItem.productoId}
+                  onChange={(productoId) => handleProductChange(productoId)}
+                />
+              ) : (
+                <Autocomplete
+                  label="Ingrediente"
+                  placeholder="Buscar ingrediente..."
+                  options={ingredients.map(ingredient => ({
+                    value: ingredient.id,
+                    label: ingredient.nombre,
+                    secondary: `$${ingredient.costoUnitario.toLocaleString()}`,
+                  }))}
+                  value={selectedItem.productoId}
+                  onChange={(ingredienteId) => handleIngredientChange(ingredienteId)}
+                />
+              )}
 
               <Input
                 label="Cantidad"
@@ -283,7 +366,7 @@ export const VentaCreate: React.FC = () => {
                 <table>
                   <thead>
                     <tr>
-                      <th>Producto</th>
+                      <th>Item</th>
                       <th>Cantidad</th>
                       <th>Precio Unit.</th>
                       <th>Subtotal</th>
@@ -292,10 +375,9 @@ export const VentaCreate: React.FC = () => {
                   </thead>
                   <tbody>
                     {formData.items.map((item: any, index: number) => {
-                      const product = products.find((p) => p.id === item.productoId);
                       return (
                         <tr key={index}>
-                          <td>{product?.nombre}</td>
+                          <td>{getItemName(item.productoId)}</td>
                           <td>{item.cantidad}</td>
                           <td>${item.precioUnitario.toLocaleString()}</td>
                           <td>${(item.cantidad * item.precioUnitario).toLocaleString()}</td>

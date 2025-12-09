@@ -6,6 +6,9 @@ export interface Cliente {
   notas?: string;
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    ventas: number;
+  };
 }
 
 export interface CreateClienteInput {

@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import './ClienteDetail.scss';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3005/api';
 
 interface Venta {
   id: number;
@@ -50,16 +52,11 @@ export const ClienteDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchHistorial();
-  }, [id]);
-
-  const fetchHistorial = async () => {
+  const fetchHistorial = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3005/api/clientes/${id}/ventas`);
+      const response = await fetch(`${API_URL}/clientes/${id}/ventas`);
       const result = await response.json();
-      
       if (result.status === 'success') {
         setHistorial(result.data);
       } else {
@@ -67,11 +64,14 @@ export const ClienteDetail: React.FC = () => {
       }
     } catch (err) {
       setError('Error al cargar historial del cliente');
-      console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchHistorial();
+  }, [fetchHistorial]);
 
   const formatCurrency = (value: number) => {
     return `$${Math.round(value).toLocaleString('es-ES')}`;

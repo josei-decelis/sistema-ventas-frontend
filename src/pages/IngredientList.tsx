@@ -27,15 +27,18 @@ export const IngredientList: React.FC = () => {
     },
     {
       header: 'Costo Unitario',
-      accessor: (ingredient: Ingredient) => `$${ingredient.costoUnitario.toFixed(2)}`,
+      accessor: (ingredient: Ingredient) => `$${ingredient.costoUnitario.toLocaleString('es-CL')}`,
     },
     {
-      header: 'Stock Actual',
-      accessor: (ingredient: Ingredient) => (
-        <span className={ingredient.stockActual < 100 ? 'stock-low' : ''}>
-          {ingredient.stockActual} {ingredient.unidadMedida}
-        </span>
-      ),
+      header: 'Usado en',
+      accessor: (ingredient: Ingredient) => {
+        const count = ingredient._count?.productos || ingredient.productos?.length || 0;
+        return (
+          <span className={`usage-badge ${count > 0 ? 'usage-badge--active' : 'usage-badge--inactive'}`}>
+            {count} producto{count !== 1 ? 's' : ''}
+          </span>
+        );
+      },
     },
     {
       header: 'Acciones',
